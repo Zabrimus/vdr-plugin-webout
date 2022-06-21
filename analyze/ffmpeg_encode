@@ -1,0 +1,2 @@
+/usr/local/ffmpeg-5.0.1/bin/ffmpeg -i 00001.ts -crf 23 -c:v libx264 -tune zerolatency -vf format=yuv420p -preset ultrafast -qp 0
+   -c:a aac -b:a 192k -map 0:0 -map 0:3 test.ts

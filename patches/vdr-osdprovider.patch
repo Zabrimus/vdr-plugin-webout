@@ -1,0 +1,113 @@
+diff -ru8 a/osd.c b/osd.c
+--- a/osd.c	2022-02-02 10:56:43.000000000 +0100
++++ b/osd.c	2022-06-11 17:04:42.952598382 +0200
+@@ -2190,33 +2190,62 @@
+ 
+ void cOsd::Flush(void)
+ {
+ }
+ 
+ // --- cOsdProvider ----------------------------------------------------------
+ 
+ cOsdProvider *cOsdProvider::osdProvider = NULL;
++cOsdProvider *cOsdProvider::allOsdProvider[5] = {NULL, NULL, NULL, NULL, NULL};
+ int cOsdProvider::oldWidth = 0;
+ int cOsdProvider::oldHeight = 0;
+ double cOsdProvider::oldAspect = 1.0;
+ cImage *cOsdProvider::images[MAXOSDIMAGES] = { NULL };
+ int cOsdProvider::osdState = 0;
+ 
+-cOsdProvider::cOsdProvider(void)
++cOsdProvider::cOsdProvider(int idx)
+ {
+-  delete osdProvider;
+-  osdProvider = this;
++  if (idx == 0) {
++    delete osdProvider;
++    osdProvider = this;
++    allOsdProvider[0] = osdProvider;
++  } else if (idx < 0 || idx > 5 || allOsdProvider[idx] != NULL) {
++    esyslog("Try to add an cOsdProvider with index %d. This request will be ignored.", idx);
++  } else {
++    allOsdProvider[idx] = this;
++  }
+ }
+ 
+ cOsdProvider::~cOsdProvider()
+ {
+   osdProvider = NULL;
+ }
+ 
++void cOsdProvider::ActivateOsdProvider(int idx) {
++    if (idx < 0 || idx > 5) {
++      esyslog("Try to activate non-existing OSD Provider with index %d", idx);
++    } else if (allOsdProvider[idx] == NULL) {
++      esyslog("OSD Provider with index %d does not exists.", idx);
++    } else {
++      osdProvider = allOsdProvider[idx];
++    }
++}
++
++void cOsdProvider::DeleteOsdProvider(int idx) {
++  if (idx < 0 || idx > 5) {
++    esyslog("Try to delete non-existing OSD Provider with index %d", idx);
++  }
++
++  if (allOsdProvider[idx] != NULL) {
++    delete allOsdProvider[idx];
++    allOsdProvider[idx] = NULL;
++  }
++}
++
+ cOsd *cOsdProvider::NewOsd(int Left, int Top, uint Level)
+ {
+   cMutexLock MutexLock(&cOsd::mutex);
+   if (Level == OSD_LEVEL_DEFAULT && cOsd::IsOpen())
+      esyslog("ERROR: attempt to open OSD while it is already open - using dummy OSD!");
+   else if (osdProvider) {
+      cOsd *ActiveOsd = cOsd::Osds.Size() ? cOsd::Osds[0] : NULL;
+      cOsd *Osd = osdProvider->CreateOsd(Left, Top, Level);
+diff -ru8 a/osd.h b/osd.h
+--- a/osd.h	2022-02-02 10:56:43.000000000 +0100
++++ b/osd.h	2022-06-07 19:56:50.641517299 +0200
+@@ -960,16 +960,17 @@
+   };
+ 
+ #define MAXOSDIMAGES 64
+ 
+ class cOsdProvider {
+   friend class cPixmapMemory;
+ private:
+   static cOsdProvider *osdProvider;
++  static cOsdProvider *allOsdProvider[5];
+   static int oldWidth;
+   static int oldHeight;
+   static double oldAspect;
+   static cImage *images[MAXOSDIMAGES];
+   static int osdState;
+ protected:
+   virtual cOsd *CreateOsd(int Left, int Top, uint Level) = 0;
+       ///< Returns a pointer to a newly created cOsd object, which will be located
+@@ -987,19 +988,21 @@
+       ///< might want to use negative integers as handles, so that it can fall
+       ///< back to using the base class image storing mechanism if, e.g.,  it runs
+       ///< out of memory.
+   virtual void DropImageData(int ImageHandle);
+       ///< Drops the image data referenced by ImageHandle.
+   static const cImage *GetImageData(int ImageHandle);
+       ///< Gets the image data referenced by ImageHandle.
+ public:
+-  cOsdProvider(void);
++  cOsdProvider(int idx = 0);
+       //XXX maybe parameter to make this one "sticky"??? (frame-buffer etc.)
+   virtual ~cOsdProvider();
++  static void ActivateOsdProvider(int idx = 0);
++  static void DeleteOsdProvider(int idx);
+   static cOsd *NewOsd(int Left, int Top, uint Level = OSD_LEVEL_DEFAULT);
+       ///< Returns a pointer to a newly created cOsd object, which will be located
+       ///< at the given coordinates. When the cOsd object is no longer needed, the
+       ///< caller must delete it. If the OSD is already in use, or there is no OSD
+       ///< provider, a dummy OSD is returned so that the caller may always use the
+       ///< returned pointer without having to check it every time it is accessed.
+   static void UpdateOsdSize(bool Force = false);
+       ///< Inquires the actual size of the video display and adjusts the OSD and
