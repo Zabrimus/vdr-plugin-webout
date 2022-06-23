@@ -11,6 +11,16 @@ private:
     bool copyVideo;
     cFFmpegHLS *ffmpegHls;
 
+    cWebReceiver(const cChannel *Channel = nullptr, int Priority = MINPRIORITY);
+    ///< Creates a new receiver for the given Channel with the given Priority.
+    ///< If Channel is not NULL, its pids are set by a call to SetPids().
+    ///< Otherwise pids can be added to the receiver by separate calls to the AddPid[s]
+    ///< functions.
+    ///< The total number of PIDs added to a receiver must not exceed MAXRECEIVEPIDS.
+    ///< Priority may be any value in the range MINPRIORITY...MAXPRIORITY. Negative values indicate
+    ///< that this cReceiver may be detached at any time in favor of a timer recording
+    ///< or live viewing (without blocking the cDevice it is attached to).
+
 protected:
     void Activate(bool On);
     ///< This function is called just before the cReceiver gets attached to
@@ -27,20 +37,10 @@ protected:
     ///< it will be able to buffer the data if necessary.
 
 public:
-    cWebReceiver(const cChannel *Channel = nullptr, int Priority = MINPRIORITY);
-    ///< Creates a new receiver for the given Channel with the given Priority.
-    ///< If Channel is not NULL, its pids are set by a call to SetPids().
-    ///< Otherwise pids can be added to the receiver by separate calls to the AddPid[s]
-    ///< functions.
-    ///< The total number of PIDs added to a receiver must not exceed MAXRECEIVEPIDS.
-    ///< Priority may be any value in the range MINPRIORITY...MAXPRIORITY. Negative values indicate
-    ///< that this cReceiver may be detached at any time in favor of a timer recording
-    ///< or live viewing (without blocking the cDevice it is attached to).
+    static void createReceiver();
+    static void deleteReceiver();
 
-    ~cWebReceiver();
+    ~cWebReceiver() override;
 };
-
-extern cWebReceiver *webReceiver;
-extern cDevice *webReceiverDevice;
 
 #endif // WEBOUT_WEBRECEIVER_H

@@ -10,6 +10,11 @@
 #include "osd.h"
 #include "fpng.h"
 
+// message types
+const uint32_t MESSAGE_TYPE_PNG   = 1;
+const uint32_t MESSAGE_TYPE_SIZE  = 2;
+const uint32_t MESSAGE_TYPE_RESET = 3;
+
 cWebOsdServer *webOsdServer;
 
 /**
@@ -120,11 +125,13 @@ AsyncStreamer streamer("/home/rh/idea/vdr-plugin-webout/static-html");
 cWebOsdServer::cWebOsdServer(const char *Description, bool LowPriority) : cThread(Description, LowPriority) {
     osdProvider = new cWebOsdProvider(OSDPROVIDER_IDX);
     webOsdServer = this;
+    webStatus = nullptr;
 }
 
 cWebOsdServer::~cWebOsdServer() {
     cOsdProvider::DeleteOsdProvider(OSDPROVIDER_IDX);
     webOsdServer = nullptr;
+    delete webStatus;
 }
 
 void cWebOsdServer::Action(void) {
@@ -147,25 +154,16 @@ void cWebOsdServer::Action(void) {
                         gws = ws;
                         sendSize();
 
-                        esyslog("Create new OSD Provider");
+                        esyslog("Create new OSD Provider/Receiver/Status");
                         cOsdProvider::ActivateOsdProvider(OSDPROVIDER_IDX);
-
-                        int channel_nr = cDevice::CurrentChannel();
-                        LOCK_CHANNELS_READ;
-                        const cChannel *channel = Channels->GetByNumber(channel_nr);
-                        if (channel != nullptr) {
-                            webReceiver = new cWebReceiver(channel);
-                            webReceiverDevice = cDevice::GetDevice(channel, 0, true, false);
-                            webReceiverDevice->AttachReceiver(webReceiver);
-                        }
+                        cWebReceiver::createReceiver();
+                        webStatus = new cWebStatus();
                     },
                     .message = [this](auto *ws, std::string_view message, uWS::OpCode opCode) {
                         std::cout << "Got message: " << message << ":" << message.length() << std::endl;
 
                         long unsigned int position;
                         if ((position = message.find(':')) != std::string::npos) {
-                            std::cout << "Position: " << position << std::endl;
-
                             auto token = message.substr(0, position - 1);
                             auto data = message.substr(position + 1, message.length());
 
@@ -181,11 +179,9 @@ void cWebOsdServer::Action(void) {
                     },
                     .close = [this](auto */*ws*/, int /*code*/, std::string_view /*message*/) {
                         cOsdProvider::ActivateOsdProvider(0);
-
-                        webReceiverDevice->Detach(webReceiver);
-                        delete webReceiver;
-                        webReceiver = nullptr;
-                        webReceiverDevice = nullptr;
+                        cWebReceiver::deleteReceiver();
+                        delete webStatus;
+                        webStatus = nullptr;
                     }
             }).get("/", [](auto *res, auto *req) {
                 // send index.html
@@ -241,7 +237,7 @@ int cWebOsdServer::sendPngImage(int x, int y, int w, int h, int bufferSize, uint
     cDevice::PrimaryDevice()->GetOsdSize(width, height, pa);
 
     // fill buffer
-    ((uint32_t *) sendBuffer)[0] = 1; // type PNG
+    ((uint32_t *) sendBuffer)[0] = MESSAGE_TYPE_PNG; // type PNG
     ((uint32_t *) sendBuffer)[1] = width;
     ((uint32_t *) sendBuffer)[2] = height;
     ((uint32_t *) sendBuffer)[3] = x;
@@ -263,17 +259,24 @@ int cWebOsdServer::sendSize() {
     cDevice::PrimaryDevice()->GetOsdSize(width, height, pa);
 
     // fill buffer
-    sendBuffer[0] = 2; // type SIZE
+    sendBuffer[0] = MESSAGE_TYPE_SIZE; // type SIZE
     sendBuffer[1] = width;
     sendBuffer[2] = height;
 
     return gws->send(std::string_view((char *) &sendBuffer, sizeof(sendBuffer)), uWS::OpCode::BINARY);
 }
 
+int cWebOsdServer::sendPlayerReset() {
+    uint32_t sendBuffer[1];
+
+    // reset
+    sendBuffer[0] = MESSAGE_TYPE_RESET; // type RESET
+
+    printf("VOR RESET\n");
+    return gws->send(std::string_view((char *) &sendBuffer, sizeof(sendBuffer)), uWS::OpCode::BINARY);
+}
+
 void cWebOsdServer::receiveKeyEvent(std::string_view event) {
     std::string data = std::string(event);
-
-    printf("Key Event %s \n", data.c_str());
-
     webRemote.ProcessKey(data.c_str());
 }

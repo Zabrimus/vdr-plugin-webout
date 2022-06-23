@@ -67,7 +67,7 @@ DEFINES += -DPLUGIN_NAME_I18N='"$(PLUGIN)"'
 
 ### The object files (add further files here):
 
-OBJS = $(PLUGIN).o fpng.o server.o osd.o webremote.o webreceiver.o ffmpeghls.o $(U_TINY_PROCESS_LIBRARY_OBJ)
+OBJS = $(PLUGIN).o fpng.o server.o osd.o webremote.o webreceiver.o webstatus.o ffmpeghls.o $(U_TINY_PROCESS_LIBRARY_OBJ)
 
 ### The main target:
 

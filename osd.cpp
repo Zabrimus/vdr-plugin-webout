@@ -60,8 +60,6 @@ void cWebOsd::Flush() {
                 argb[i] = ((argb[i] & 0x00FF0000) >> 16)  | ((argb[i] & 0x0000FF00)) | ((argb[i] & 0x000000FF) << 16) | ((argb[i] & 0xFF000000));
             }
 
-            printf("SIZE: x=%d, y=%d, w=%d, h=%d, left=%d, top=%d\n", vx, vy, vw, vh, left, top);
-
             outbuffer.clear();
             bool pngResult = fpng::fpng_encode_image_to_memory(argb, vw, vh, 4, outbuffer, 0);
             webOsdServer->sendPngImage(left + vx, top + vy, vw, vh, outbuffer.size(), outbuffer.data());

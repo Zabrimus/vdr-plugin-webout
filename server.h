@@ -7,6 +7,7 @@
 #include "osd.h"
 #include "webremote.h"
 #include "webreceiver.h"
+#include "webstatus.h"
 
 struct PerSocketData {
     /* Define your user data */
@@ -23,6 +24,7 @@ private:
     us_listen_socket_t *listenSocket;
 
     cWebOsdProvider *osdProvider;
+    cWebStatus *webStatus;
 
 protected:
     void Action() override;
@@ -52,6 +54,7 @@ public:
 
     int sendPngImage(int x, int y, int w, int h, int bufferSize, uint8_t *buffer);
     int sendSize();
+    int sendPlayerReset();
 
     void receiveKeyEvent(std::string_view event);
 };

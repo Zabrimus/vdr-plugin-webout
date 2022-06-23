@@ -41,7 +41,7 @@
             let dv = new DataView(event.data, 0);
             let type = dv.getInt32(0, true);
 
-            console.log("Message received...");
+            console.log("Message received..." + type);
 
             switch(type) {
                 case 1: // show PNG Image
@@ -54,6 +54,14 @@
                     // setCanvasVideoSize("osdCanvas", event.data);
                     // setCanvasVideoSize("video", event.data);
                     // setCanvasVideoSize("container", event.data);
+                    break;
+
+                case 3: // Player reset
+                    console.log("Reset received");
+                    if (window.videoPlayer) {
+                        window.videoPlayer.reset();
+                    }
+
                     break;
             }
         };
@@ -177,6 +185,8 @@
                 }
             });
         }
+
+        window.videoPlayer = player;
     </script>
 
     <!-- resize canvas to size of video -->

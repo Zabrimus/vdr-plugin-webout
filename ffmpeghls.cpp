@@ -23,9 +23,15 @@ cFFmpegHLS::cFFmpegHLS(bool copyVideo, int audioStreamPID) {
             std::string(" ") + (IS_DOLBY_TRACK(cDevice::PrimaryDevice()->GetCurrentAudioTrack()) ? AUDIO_ENCODE_COPY : AUDIO_ENCODE_AAC) +
             std::string(" -y vdr-live-tv.m3u8");
 
-    debug_plugin("Call ffmpeg with '%s'", ffmpeg.c_str());
+    printf("=> Call ffmpeg with '%s'\n", ffmpeg.c_str());
 
     ffmpegProcess = new TinyProcessLib::Process(ffmpeg, STREAM_DIR, nullptr, nullptr, true);
+
+    int exitStatus;
+
+    if (ffmpegProcess->try_get_exit_status(exitStatus)) {
+        printf("ffmpeg error_code: %d\n", exitStatus);
+    }
 }
 
 cFFmpegHLS::~cFFmpegHLS() {
@@ -55,6 +61,7 @@ void cFFmpegHLS::Receive(const uchar *Data, int Length) {
 
     if (ffmpegProcess->try_get_exit_status(exitStatus)) {
         // process stopped/finished/crashed
+        printf("2=> ffmpeg error_code: %d\n", exitStatus);
         return;
     }
 
