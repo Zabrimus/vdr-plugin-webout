@@ -56,6 +56,7 @@ public:
     int sendPngImage(int x, int y, int w, int h, int bufferSize, uint8_t *buffer);
     int sendSize();
     int sendPlayerReset();
+    int sendClearOsd();
 
     void receiveKeyEvent(std::string_view event);
 };

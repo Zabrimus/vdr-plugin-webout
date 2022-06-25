@@ -62,6 +62,9 @@
                         window.videoPlayer.reset();
                     }
 
+                case 4: // Clear OSD
+                    console.log("Clear OSD received");
+                    clear("osdCanvas");
                     break;
             }
         };
@@ -146,6 +149,14 @@
         }
     </script>
 
+    <!-- set Canvas Size -->
+    <script type="text/javascript" charset="utf-8">
+        function clear(canvas) {
+            let canvasElement = document.getElementById(canvas);
+            let ctx = canvasElement.getContext("2d");
+            ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+        }
+    </script>
 </head>
 
 <body>

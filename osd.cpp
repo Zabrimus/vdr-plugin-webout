@@ -20,11 +20,12 @@ cWebOsdProvider::~cWebOsdProvider() {
 
 cWebOsd::cWebOsd(cWebOsdProvider &Provider, int Left, int Top, uint Level) : cOsd(Left, Top, Level) {
     debug_plugin("create WebOsd %d, %d, %d", Left, Top, Level);
+    webOsdServer->sendSize();
 }
 
 cWebOsd::~cWebOsd() {
     debug_plugin("delete WebOsd");
-    webOsdServer->sendSize();
+    webOsdServer->sendClearOsd();
 }
 
 void cWebOsd::Flush() {

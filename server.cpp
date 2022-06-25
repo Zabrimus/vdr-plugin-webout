@@ -10,10 +10,11 @@
 #include "osd.h"
 #include "fpng.h"
 
-// message types
-const uint32_t MESSAGE_TYPE_PNG   = 1;
-const uint32_t MESSAGE_TYPE_SIZE  = 2;
-const uint32_t MESSAGE_TYPE_RESET = 3;
+// message types (VDR --> Browser)
+const uint32_t MESSAGE_TYPE_PNG       = 1;
+const uint32_t MESSAGE_TYPE_SIZE      = 2;
+const uint32_t MESSAGE_TYPE_RESET     = 3;
+const uint32_t MESSAGE_TYPE_CLEAR_OSD = 4;
 
 cWebOsdServer *webOsdServer;
 
@@ -266,13 +267,19 @@ int cWebOsdServer::sendSize() {
     return gws->send(std::string_view((char *) &sendBuffer, sizeof(sendBuffer)), uWS::OpCode::BINARY);
 }
 
+int cWebOsdServer:: sendClearOsd() {
+    uint32_t sendBuffer[1];
+
+    // clear OSD
+    sendBuffer[0] = MESSAGE_TYPE_CLEAR_OSD; // type CLEAR_OSD
+    return gws->send(std::string_view((char *) &sendBuffer, sizeof(sendBuffer)), uWS::OpCode::BINARY);
+}
+
 int cWebOsdServer::sendPlayerReset() {
     uint32_t sendBuffer[1];
 
     // reset
     sendBuffer[0] = MESSAGE_TYPE_RESET; // type RESET
-
-    printf("VOR RESET\n");
     return gws->send(std::string_view((char *) &sendBuffer, sizeof(sendBuffer)), uWS::OpCode::BINARY);
 }
 

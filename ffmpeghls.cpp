@@ -14,7 +14,8 @@ cFFmpegHLS::cFFmpegHLS(bool copyVideo) {
     std::filesystem::remove_all(STREAM_DIR);
     std::filesystem::create_directories(STREAM_DIR);
 
-    std::string ffmpeg = std::string("ffmpeg -i - -v panic -hide_banner -ignore_unknown -fflags flush_packets -max_delay 5 -flags -global_header -hls_time 5 -hls_list_size 3 ") +
+    // std::string ffmpeg = std::string("ffmpeg -i - -v panic -hide_banner -ignore_unknown -fflags flush_packets -max_delay 5 -flags -global_header -hls_time 5 -hls_list_size 3 ") +
+    std::string ffmpeg = std::string("ffmpeg -i - -ignore_unknown -fflags flush_packets -max_delay 5 -flags -global_header -hls_time 5 -hls_list_size 3 ") +
             std::string(" -map 0:v -map 0:a") +
             std::string(" ") + (copyVideo ? VIDEO_ENCODE_COPY : VIDEO_ENCODE_H264) +
             std::string(" ") + (IS_DOLBY_TRACK(cDevice::PrimaryDevice()->GetCurrentAudioTrack()) ? AUDIO_ENCODE_COPY : AUDIO_ENCODE_AAC) +

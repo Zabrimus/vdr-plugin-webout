@@ -18,6 +18,7 @@ private:
 
     int getCurrentAudioPID();
     void channelSwitch();
+    void changeAudioTrack();
 
 protected:
     void Activate(bool On);
