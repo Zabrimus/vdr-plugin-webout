@@ -156,7 +156,7 @@ void cWebOsdServer::Action(void) {
 
                         esyslog("Create new OSD Provider/Receiver/Status");
                         cOsdProvider::ActivateOsdProvider(OSDPROVIDER_IDX);
-                        cWebReceiver::createReceiver();
+                        webReceiver = new cWebReceiver();
                         webStatus = new cWebStatus();
                     },
                     .message = [this](auto *ws, std::string_view message, uWS::OpCode opCode) {
@@ -179,7 +179,7 @@ void cWebOsdServer::Action(void) {
                     },
                     .close = [this](auto */*ws*/, int /*code*/, std::string_view /*message*/) {
                         cOsdProvider::ActivateOsdProvider(0);
-                        cWebReceiver::deleteReceiver();
+                        DELETENULL(webReceiver);
                         delete webStatus;
                         webStatus = nullptr;
                     }

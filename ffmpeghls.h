@@ -11,10 +11,8 @@ class cFFmpegHLS {
 private:
     TinyProcessLib::Process *ffmpegProcess;
 
-    int getCurrentAudioStream();
-
 public:
-    cFFmpegHLS(bool copyVideo, int audioStreamPID);
+    cFFmpegHLS(bool copyVideo);
     ~cFFmpegHLS();
 
     void Receive(const uchar *Data, int Length);

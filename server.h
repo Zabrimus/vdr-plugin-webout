@@ -25,6 +25,7 @@ private:
 
     cWebOsdProvider *osdProvider;
     cWebStatus *webStatus;
+    cWebReceiver *webReceiver;
 
 protected:
     void Action() override;
