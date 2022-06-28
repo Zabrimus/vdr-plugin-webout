@@ -59,7 +59,9 @@
                 case 3: // Player reset
                     console.log("Reset received");
                     if (window.videoPlayer) {
-                        window.videoPlayer.reset();
+                        // window.videoPlayer.reset();
+                        window.videoPlayer.dispose();
+                        initPlayer();
                     }
 
                 case 4: // Clear OSD
@@ -161,43 +163,56 @@
 
 <body>
     <div id="container">
+        <!--
         <video-js id="video" preload="auto" style="background-color: yellow"></video-js>
+        -->
         <canvas id="osdCanvas"></canvas>
     </div>
 
     <!-- video script -->
     <script src="/video.js"></script>
     <script>
-        var player = videojs('video', {
-            "liveui": true,
-            "fluid": true,
-        });
+        function initPlayer() {
+            const container = document.getElementById("container");
+            const videoElement = document.createElement("video-js");
+            videoElement.setAttribute('id', 'video');
+            videoElement.setAttribute('preload', 'auto');
+            videoElement.style.backgroundColor = 'yellow';
+            container.insertBefore(videoElement, container.firstChild);
 
-        player.src({
-            src: '/stream/vdr-live-tv.m3u8',
-            type: 'application/x-mpegURL'
-        });
-
-        var bpb = player.getChild('bigPlayButton');
-        if (bpb) {
-            bpb.hide();
-
-            player.ready(function() {
-                var promise = player.play();
-
-                if (promise === undefined) {
-                    bpb.show();
-                } else {
-                    promise.then(function() {
-                        bpb.show();
-                    }, function() {
-                        bpb.show();
-                    });
-                }
+            let player = videojs('video', {
+                "liveui": true,
+                "fluid": true,
             });
+
+            player.src({
+                src: '/stream/vdr-live-tv.m3u8',
+                type: 'application/x-mpegURL'
+            });
+
+            let bpb = player.getChild('bigPlayButton');
+            if (bpb) {
+                bpb.hide();
+
+                player.ready(function () {
+                    let promise = player.play();
+
+                    if (promise === undefined) {
+                        bpb.show();
+                    } else {
+                        promise.then(function () {
+                            bpb.show();
+                        }, function () {
+                            bpb.show();
+                        });
+                    }
+                });
+            }
+
+            window.videoPlayer = player;
         }
 
-        window.videoPlayer = player;
+        initPlayer();
     </script>
 
     <!-- resize canvas to size of video -->

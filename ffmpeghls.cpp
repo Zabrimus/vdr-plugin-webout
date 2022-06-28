@@ -5,7 +5,7 @@
 
 const char* STREAM_DIR = "/tmp/vdr-live-tv-stream";
 
-const std::string VIDEO_ENCODE_H264 = "-crf 23 -c:v libx264 -tune zerolatency -vf format=yuv420p -preset ultrafast -qp 0";
+const std::string VIDEO_ENCODE_H264 = "-crf 23 -c:v libx264 -tune zerolatency -vf format=yuv420p -preset ultrafast -qp 0 -bufsize 1835k";
 const std::string VIDEO_ENCODE_COPY = "-c:v copy";
 const std::string AUDIO_ENCODE_AAC = "-c:a aac -b:a 192k";
 const std::string AUDIO_ENCODE_COPY = "-c:a copy";
@@ -16,7 +16,7 @@ cFFmpegHLS::cFFmpegHLS(bool copyVideo) {
 
     // std::string ffmpeg = std::string("ffmpeg -i - -v panic -hide_banner -ignore_unknown -fflags flush_packets -max_delay 5 -flags -global_header -hls_time 5 -hls_list_size 3 ") +
     std::string ffmpeg = std::string("ffmpeg -i - -ignore_unknown -fflags flush_packets -max_delay 5 -flags -global_header -hls_time 5 -hls_list_size 3 ") +
-            std::string(" -map 0:v -map 0:a") +
+            std::string(" -map 0:v -map 0:a?") +
             std::string(" ") + (copyVideo ? VIDEO_ENCODE_COPY : VIDEO_ENCODE_H264) +
             std::string(" ") + (IS_DOLBY_TRACK(cDevice::PrimaryDevice()->GetCurrentAudioTrack()) ? AUDIO_ENCODE_COPY : AUDIO_ENCODE_AAC) +
             std::string(" -y vdr-live-tv.m3u8");
