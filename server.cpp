@@ -8,6 +8,7 @@
 
 #include "server.h"
 #include "osd.h"
+#include "webplayer.h"
 #include "fpng.h"
 
 // message types (VDR --> Browser)
@@ -17,6 +18,7 @@ const uint32_t MESSAGE_TYPE_RESET     = 3;
 const uint32_t MESSAGE_TYPE_CLEAR_OSD = 4;
 
 cWebOsdServer *webOsdServer;
+cWebPlayer *webPlayer;
 
 /**
  * AsyncFileStreamer copied from https://github.com/uNetworking/uWebSockets/discussions/1352
@@ -159,6 +161,11 @@ void cWebOsdServer::Action(void) {
                         cOsdProvider::ActivateOsdProvider(OSDPROVIDER_IDX);
                         webReceiver = new cWebReceiver();
                         webStatus = new cWebStatus();
+                        webPlayer = new cWebPlayer();
+
+                        auto ctrl = new cWebControl(webPlayer);
+                        cControl::Launch(ctrl);
+                        cControl::Attach();
                     },
                     .message = [this](auto *ws, std::string_view message, uWS::OpCode opCode) {
                         std::cout << "Got message: " << message << ":" << message.length() << std::endl;
@@ -181,8 +188,9 @@ void cWebOsdServer::Action(void) {
                     .close = [this](auto */*ws*/, int /*code*/, std::string_view /*message*/) {
                         cOsdProvider::ActivateOsdProvider(0);
                         DELETENULL(webReceiver);
-                        delete webStatus;
+                        DELETENULL(webStatus);
                         webStatus = nullptr;
+                        cDevice::PrimaryDevice()->Detach(webPlayer);
                     }
             }).get("/", [](auto *res, auto *req) {
                 // send index.html

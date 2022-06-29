@@ -14,6 +14,7 @@ static const char *VERSION        = "0.0.1";
 static const char *DESCRIPTION    = "Enter description for 'webout' plugin";
 static const char *MAINMENUENTRY  = "Webout";
 
+
 class cPluginWebout : public cPlugin {
 private:
   // Add any member variables or functions you may need here.

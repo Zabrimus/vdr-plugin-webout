@@ -1,7 +1,7 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-//#define DEBUG
+#define DEBUG
 
 #ifdef DEBUG
 #define debug_plugin( x... ) \
