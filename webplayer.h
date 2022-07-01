@@ -21,4 +21,6 @@ public:
     eOSState ProcessKey(eKeys Key) override;
 };
 
+extern cWebPlayer *webPlayer;
+
 #endif // WEBOUT_WEBPLAYER_H

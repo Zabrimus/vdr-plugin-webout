@@ -1,12 +1,16 @@
 #include "global.h"
 #include "webplayer.h"
 
+cWebPlayer *webPlayer;
+
 cWebPlayer::cWebPlayer() {
     debug_plugin(" ");
+    webPlayer = this;
 }
 
 cWebPlayer::~cWebPlayer() {
     debug_plugin(" ");
+    webPlayer = nullptr;
 }
 
 void cWebPlayer::Activate(bool On) {

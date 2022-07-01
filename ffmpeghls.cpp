@@ -5,7 +5,7 @@
 
 const char* STREAM_DIR = "/tmp/vdr-live-tv-stream";
 
-const std::string VIDEO_ENCODE_H264 = "-crf 23 -c:v libx264 -tune zerolatency -vf format=yuv420p -preset ultrafast -qp 0 -bufsize 1835k";
+const std::string VIDEO_ENCODE_H264 = "-crf 23 -c:v libx264 -tune zerolatency -vf format=yuv420p -preset ultrafast -qp 0 ";
 const std::string VIDEO_ENCODE_COPY = "-c:v copy";
 const std::string AUDIO_ENCODE_AAC = "-c:a aac -b:a 192k";
 const std::string AUDIO_ENCODE_COPY = "-c:a copy";

@@ -18,7 +18,6 @@ const uint32_t MESSAGE_TYPE_RESET     = 3;
 const uint32_t MESSAGE_TYPE_CLEAR_OSD = 4;
 
 cWebOsdServer *webOsdServer;
-cWebPlayer *webPlayer;
 
 /**
  * AsyncFileStreamer copied from https://github.com/uNetworking/uWebSockets/discussions/1352
@@ -161,9 +160,8 @@ void cWebOsdServer::Action(void) {
                         cOsdProvider::ActivateOsdProvider(OSDPROVIDER_IDX);
                         webReceiver = new cWebReceiver();
                         webStatus = new cWebStatus();
-                        webPlayer = new cWebPlayer();
 
-                        auto ctrl = new cWebControl(webPlayer);
+                        auto ctrl = new cWebControl(new cWebPlayer);
                         cControl::Launch(ctrl);
                         cControl::Attach();
                     },
@@ -190,7 +188,10 @@ void cWebOsdServer::Action(void) {
                         DELETENULL(webReceiver);
                         DELETENULL(webStatus);
                         webStatus = nullptr;
-                        cDevice::PrimaryDevice()->Detach(webPlayer);
+
+                        if (webPlayer != nullptr) {
+                            cDevice::PrimaryDevice()->Detach(webPlayer);
+                        }
                     }
             }).get("/", [](auto *res, auto *req) {
                 // send index.html

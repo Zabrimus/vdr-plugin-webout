@@ -7,7 +7,6 @@ void cWebStatus::ChannelSwitch(const cDevice *Device, int ChannelNumber, bool Li
 
     if (ChannelNumber == 0 && LiveView) {
         cWebReceiver::getCurrentWebReceiver()->Detach();
-        // cDevice::ActualDevice()->Detach(cWebReceiver::getCurrentWebReceiver());
     }
 
     if (!LiveView || ChannelNumber == 0) {
@@ -23,4 +22,8 @@ void cWebStatus::SetAudioTrack(int Index, const char *const *Tracks) {
     printf("Track: %s\n", Tracks[Index]);
 
     cWebReceiver::getCurrentWebReceiver()->changeAudioTrack();
+}
+
+void cWebStatus::Replaying(const cControl *Control, const char *Name, const char *FileName, bool On) {
+    printf("Replaying: %s -> %s -> %s\n", Name, FileName, On ? " An " : " Aus");
 }

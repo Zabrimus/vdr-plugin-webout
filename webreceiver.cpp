@@ -1,7 +1,9 @@
 #include <iostream>
 #include "global.h"
 #include "webreceiver.h"
+#include "webplayer.h"
 #include "server.h"
+
 
 const int maxTs = 256;
 uint8_t tsBuffer[maxTs * 188];
@@ -61,6 +63,10 @@ void cWebReceiver::channelSwitch() {
     cDevice::ActualDevice()->AttachReceiver(this);
 
     webOsdServer->sendPlayerReset();
+
+    auto ctrl = new cWebControl(new cWebPlayer);
+    cControl::Launch(ctrl);
+    cControl::Attach();
 
     printf("Attached %d\n", NumPids());
 }
