@@ -9,6 +9,7 @@
 #include "server.h"
 #include "osd.h"
 #include "webplayer.h"
+#include "webdevice.h"
 #include "fpng.h"
 
 // message types (VDR --> Browser)
@@ -156,14 +157,16 @@ void cWebOsdServer::Action(void) {
                         gws = ws;
                         sendSize();
 
-                        esyslog("Create new OSD Provider/Receiver/Status");
-                        cOsdProvider::ActivateOsdProvider(OSDPROVIDER_IDX);
-                        webReceiver = new cWebReceiver();
-                        webStatus = new cWebStatus();
-
                         auto ctrl = new cWebControl(new cWebPlayer);
                         cControl::Launch(ctrl);
                         cControl::Attach();
+
+                        webDevice->Activate(true);
+
+                        esyslog("Create new OSD Provider/Receiver/Status");
+                        cOsdProvider::ActivateOsdProvider(OSDPROVIDER_IDX);
+                        // webReceiver = new cWebReceiver();
+                        // webStatus = new cWebStatus();
                     },
                     .message = [this](auto *ws, std::string_view message, uWS::OpCode opCode) {
                         std::cout << "Got message: " << message << ":" << message.length() << std::endl;
@@ -192,6 +195,8 @@ void cWebOsdServer::Action(void) {
                         if (webPlayer != nullptr) {
                             cDevice::PrimaryDevice()->Detach(webPlayer);
                         }
+
+                        webDevice->Activate(false);
                     }
             }).get("/", [](auto *res, auto *req) {
                 // send index.html

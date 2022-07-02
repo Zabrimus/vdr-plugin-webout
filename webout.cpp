@@ -8,6 +8,7 @@
 
 #include <vdr/plugin.h>
 #include "server.h"
+#include "webdevice.h"
 #include "fpng.h"
 
 static const char *VERSION        = "0.0.1";
@@ -21,29 +22,29 @@ private:
   cWebOsdServer *osdServer;
 
 public:
-  cPluginWebout(void);
-  virtual ~cPluginWebout();
-  virtual const char *Version(void) { return VERSION; }
-  virtual const char *Description(void) { return DESCRIPTION; }
-  virtual const char *CommandLineHelp(void);
-  virtual bool ProcessArgs(int argc, char *argv[]);
-  virtual bool Initialize(void);
-  virtual bool Start(void);
-  virtual void Stop(void);
-  virtual void Housekeeping(void);
-  virtual void MainThreadHook(void);
-  virtual cString Active(void);
-  virtual time_t WakeupTime(void);
-  virtual const char *MainMenuEntry(void) { return MAINMENUENTRY; }
-  virtual cOsdObject *MainMenuAction(void);
-  virtual cMenuSetupPage *SetupMenu(void);
-  virtual bool SetupParse(const char *Name, const char *Value);
-  virtual bool Service(const char *Id, void *Data = NULL);
-  virtual const char **SVDRPHelpPages(void);
-  virtual cString SVDRPCommand(const char *Command, const char *Option, int &ReplyCode);
+  cPluginWebout();
+  ~cPluginWebout() override;
+  const char *Version() override { return VERSION; }
+  const char *Description() override { return DESCRIPTION; }
+  const char *CommandLineHelp() override;
+  bool ProcessArgs(int argc, char *argv[]) override;
+  bool Initialize() override;
+  bool Start() override;
+  void Stop() override;
+  void Housekeeping() override;
+  void MainThreadHook() override;
+  cString Active() override;
+  time_t WakeupTime() override;
+  const char *MainMenuEntry() override { return MAINMENUENTRY; }
+  cOsdObject *MainMenuAction() override;
+  cMenuSetupPage *SetupMenu() override;
+  bool SetupParse(const char *Name, const char *Value) override;
+  bool Service(const char *Id, void *Data) override;
+  const char **SVDRPHelpPages() override;
+  cString SVDRPCommand(const char *Command, const char *Option, int &ReplyCode) override;
   };
 
-cPluginWebout::cPluginWebout(void)
+cPluginWebout::cPluginWebout()
 {
   // Initialize any member variables here.
   // DON'T DO ANYTHING ELSE THAT MAY HAVE SIDE EFFECTS, REQUIRE GLOBAL
@@ -55,10 +56,10 @@ cPluginWebout::~cPluginWebout()
   // Clean up after yourself!
 }
 
-const char *cPluginWebout::CommandLineHelp(void)
+const char *cPluginWebout::CommandLineHelp()
 {
   // Return a string that describes all known command line options.
-  return NULL;
+  return nullptr;
 }
 
 bool cPluginWebout::ProcessArgs(int argc, char *argv[])
@@ -67,61 +68,62 @@ bool cPluginWebout::ProcessArgs(int argc, char *argv[])
   return true;
 }
 
-bool cPluginWebout::Initialize(void)
+bool cPluginWebout::Initialize()
 {
   // Initialize any background activities the plugin shall perform.
   osdServer = new cWebOsdServer();
+  new cWebDevice();
 
   fpng::fpng_init();
 
   return true;
 }
 
-bool cPluginWebout::Start(void)
+bool cPluginWebout::Start()
 {
   // Start any background activities the plugin shall perform.
   osdServer->Start();
   return true;
 }
 
-void cPluginWebout::Stop(void)
+void cPluginWebout::Stop()
 {
   // Stop any background activities the plugin is performing.
 }
 
-void cPluginWebout::Housekeeping(void)
+void cPluginWebout::Housekeeping()
 {
   // Perform any cleanup or other regular tasks.
 }
 
-void cPluginWebout::MainThreadHook(void)
+void cPluginWebout::MainThreadHook()
 {
   // Perform actions in the context of the main program thread.
   // WARNING: Use with great care - see PLUGINS.html!
 }
 
-cString cPluginWebout::Active(void)
+cString cPluginWebout::Active()
 {
   // Return a message string if shutdown should be postponed
-  return NULL;
+  return nullptr;
 }
 
-time_t cPluginWebout::WakeupTime(void)
+time_t cPluginWebout::WakeupTime()
 {
   // Return custom wakeup time for shutdown script
   return 0;
 }
 
-cOsdObject *cPluginWebout::MainMenuAction(void)
+cOsdObject *cPluginWebout::MainMenuAction()
 {
   // Perform the action when selected from the main VDR menu.
-  return NULL;
+  return nullptr;
 }
 
-cMenuSetupPage *cPluginWebout::SetupMenu(void)
+cMenuSetupPage *cPluginWebout::SetupMenu()
 {
   // Return a setup menu in case the plugin supports one.
-  return NULL;
+  return nullptr;
 }
 
 bool cPluginWebout::SetupParse(const char *Name, const char *Value)
@@ -136,16 +138,16 @@ bool cPluginWebout::Service(const char *Id, void *Data)
   return false;
 }
 
-const char **cPluginWebout::SVDRPHelpPages(void)
+const char **cPluginWebout::SVDRPHelpPages()
 {
   // Return help text for SVDRP commands this plugin implements
-  return NULL;
+  return nullptr;
 }
 
 cString cPluginWebout::SVDRPCommand(const char *Command, const char *Option, int &ReplyCode)
 {
   // Process SVDRP commands this plugin implements
-  return NULL;
+  return nullptr;
 }
 
 VDRPLUGINCREATOR(cPluginWebout); // Don't touch this!
