@@ -1,7 +1,7 @@
 #include <chrono>
 #include <vdr/device.h>
 #include "fpng.h"
-#include "osd.h"
+#include "webosd.h"
 #include "server.h"
 
 cOsd *cWebOsdProvider::CreateOsd(int Left, int Top, uint Level) {
@@ -10,7 +10,7 @@ cOsd *cWebOsdProvider::CreateOsd(int Left, int Top, uint Level) {
     return new cWebOsd(*this, Left, Top, Level);
 }
 
-cWebOsdProvider::cWebOsdProvider(int idx) : cOsdProvider(idx) {
+cWebOsdProvider::cWebOsdProvider() : cOsdProvider() {
     debug_plugin("create WebOsdProvider");
 }
 

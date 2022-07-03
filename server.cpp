@@ -7,7 +7,7 @@
 #include <filesystem>
 
 #include "server.h"
-#include "osd.h"
+#include "webosd.h"
 #include "webplayer.h"
 #include "webdevice.h"
 #include "fpng.h"
@@ -126,15 +126,14 @@ struct AsyncStreamer {
 AsyncStreamer streamer("/home/rh/idea/vdr-plugin-webout/static-html");
 
 cWebOsdServer::cWebOsdServer(const char *Description, bool LowPriority) : cThread(Description, LowPriority) {
-    osdProvider = new cWebOsdProvider(OSDPROVIDER_IDX);
+    // osdProvider = new cWebOsdProvider(OSDPROVIDER_IDX);
     webOsdServer = this;
-    webStatus = nullptr;
+    // webStatus = nullptr;
 }
 
 cWebOsdServer::~cWebOsdServer() {
-    cOsdProvider::DeleteOsdProvider(OSDPROVIDER_IDX);
     webOsdServer = nullptr;
-    delete webStatus;
+    // delete webStatus;
 }
 
 void cWebOsdServer::Action(void) {
@@ -157,14 +156,15 @@ void cWebOsdServer::Action(void) {
                         gws = ws;
                         sendSize();
 
-                        auto ctrl = new cWebControl(new cWebPlayer);
-                        cControl::Launch(ctrl);
-                        cControl::Attach();
-
                         webDevice->Activate(true);
 
                         esyslog("Create new OSD Provider/Receiver/Status");
-                        cOsdProvider::ActivateOsdProvider(OSDPROVIDER_IDX);
+                        // cOsdProvider::ActivateOsdProvider(OSDPROVIDER_IDX);
+
+                        // auto ctrl = new cWebControl(new cWebPlayer);
+                        // cControl::Launch(ctrl);
+                        // cControl::Attach();
+
                         // webReceiver = new cWebReceiver();
                         // webStatus = new cWebStatus();
                     },
@@ -187,14 +187,16 @@ void cWebOsdServer::Action(void) {
                         printf("Drain\n");
                     },
                     .close = [this](auto */*ws*/, int /*code*/, std::string_view /*message*/) {
-                        cOsdProvider::ActivateOsdProvider(0);
-                        DELETENULL(webReceiver);
-                        DELETENULL(webStatus);
-                        webStatus = nullptr;
+                        // cOsdProvider::ActivateOsdProvider(0);
+                        // DELETENULL(webReceiver);
+                        // DELETENULL(webStatus);
+                        // webStatus = nullptr;
 
+                        /*
                         if (webPlayer != nullptr) {
                             cDevice::PrimaryDevice()->Detach(webPlayer);
                         }
+                        */
 
                         webDevice->Activate(false);
                     }

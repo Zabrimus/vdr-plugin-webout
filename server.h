@@ -4,7 +4,7 @@
 #include <vdr/thread.h>
 #include <App.h>
 #include <WebSocket.h>
-#include "osd.h"
+#include "webosd.h"
 #include "webremote.h"
 #include "webreceiver.h"
 #include "webstatus.h"
@@ -23,9 +23,9 @@ private:
     uWS::Loop *globalAppLoop;
     us_listen_socket_t *listenSocket;
 
-    cWebOsdProvider *osdProvider;
-    cWebStatus *webStatus;
-    cWebReceiver *webReceiver;
+    // cWebOsdProvider *osdProvider;
+    // cWebStatus *webStatus;
+    // cWebReceiver *webReceiver;
 
 protected:
     void Action() override;

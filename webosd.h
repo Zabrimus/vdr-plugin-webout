@@ -2,10 +2,8 @@
 #define WEBOUT_CWEBOSD_H
 
 #include <vdr/osd.h>
-#include "osd.h"
+#include "webosd.h"
 #include "global.h"
-
-const int OSDPROVIDER_IDX = 1;
 
 class cWebOsdProvider : public cOsdProvider {
 protected:
@@ -13,7 +11,7 @@ protected:
     bool ProvidesTrueColor() override { return true; }
 
 public:
-    cWebOsdProvider(int idx);
+    cWebOsdProvider();
     ~cWebOsdProvider() override;
 };
 

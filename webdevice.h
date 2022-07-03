@@ -2,8 +2,13 @@
 #define WEBOUT_WEBDEVICE_H
 
 #include <vdr/device.h>
+#include "ffmpeghls.h"
+#include "webosd.h"
 
 class cWebDevice : public cDevice {
+private:
+    cFFmpegHLS *ffmpegHls;
+
 public:
     cWebDevice();
     ~cWebDevice() override;
@@ -28,6 +33,8 @@ public:
     bool Flush(int TimeoutMs) override;
 
     void Activate(bool On);
+
+    void GetOsdSize(int &Width, int &Height, double &Aspect) override;
 
 protected:
     void MakePrimaryDevice(bool On) override;

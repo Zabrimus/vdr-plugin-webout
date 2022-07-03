@@ -57,6 +57,10 @@ cFFmpegHLS::~cFFmpegHLS() {
 void cFFmpegHLS::Receive(const uchar *Data, int Length) {
     int exitStatus;
 
+    if (ffmpegProcess == nullptr) {
+        return;
+    }
+
     if (ffmpegProcess->try_get_exit_status(exitStatus)) {
         // process stopped/finished/crashed
         printf("2=> ffmpeg error_code: %d\n", exitStatus);

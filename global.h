@@ -1,6 +1,8 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
+#include <vdr/plugin.h>
+
 #define DEBUG
 
 #ifdef DEBUG
@@ -13,5 +15,7 @@
 #else
 #define debug_plugin( x... )
 #endif
+
+cString sendSVDRPCommand(const char *plugin, bool prefix, const char *command, const char *option, int &reply_code);
 
 #endif // GLOBAL_H
