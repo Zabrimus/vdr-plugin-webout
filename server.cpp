@@ -8,7 +8,6 @@
 
 #include "server.h"
 #include "webosd.h"
-#include "webplayer.h"
 #include "webdevice.h"
 #include "fpng.h"
 
@@ -136,7 +135,7 @@ cWebOsdServer::~cWebOsdServer() {
     // delete webStatus;
 }
 
-void cWebOsdServer::Action(void) {
+void cWebOsdServer::Action() {
     uWS::App app = uWS::App()
             .ws<PerSocketData>("/command", {
                     .compression = uWS::SHARED_COMPRESSOR,
@@ -155,18 +154,7 @@ void cWebOsdServer::Action(void) {
                     .open = [this](auto *ws) {
                         gws = ws;
                         sendSize();
-
                         webDevice->Activate(true);
-
-                        esyslog("Create new OSD Provider/Receiver/Status");
-                        // cOsdProvider::ActivateOsdProvider(OSDPROVIDER_IDX);
-
-                        // auto ctrl = new cWebControl(new cWebPlayer);
-                        // cControl::Launch(ctrl);
-                        // cControl::Attach();
-
-                        // webReceiver = new cWebReceiver();
-                        // webStatus = new cWebStatus();
                     },
                     .message = [this](auto *ws, std::string_view message, uWS::OpCode opCode) {
                         std::cout << "Got message: " << message << ":" << message.length() << std::endl;
@@ -187,17 +175,6 @@ void cWebOsdServer::Action(void) {
                         printf("Drain\n");
                     },
                     .close = [this](auto */*ws*/, int /*code*/, std::string_view /*message*/) {
-                        // cOsdProvider::ActivateOsdProvider(0);
-                        // DELETENULL(webReceiver);
-                        // DELETENULL(webStatus);
-                        // webStatus = nullptr;
-
-                        /*
-                        if (webPlayer != nullptr) {
-                            cDevice::PrimaryDevice()->Detach(webPlayer);
-                        }
-                        */
-
                         webDevice->Activate(false);
                     }
             }).get("/", [](auto *res, auto *req) {

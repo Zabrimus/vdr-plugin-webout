@@ -6,8 +6,6 @@
 #include <WebSocket.h>
 #include "webosd.h"
 #include "webremote.h"
-#include "webreceiver.h"
-#include "webstatus.h"
 
 struct PerSocketData {
     /* Define your user data */

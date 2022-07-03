@@ -3,23 +3,22 @@
 
 #include <process.hpp>
 #include <vdr/receiver.h>
+#include "webstatus.h"
 #include "ffmpeghls.h"
 
-class cWebReceiver : public cReceiver {
+class cWebReceiver : public cReceiver { // , cThread {
+    friend cWebStatus;
+
 private:
-    int audioStreamPID;
+    int currentAudioPid;
     bool copyVideo;
     cFFmpegHLS *ffmpegHls;
 
-    cWebReceiver(const cChannel *Channel = nullptr, int Priority = MINPRIORITY);
-    ///< Creates a new receiver for the given Channel with the given Priority.
-    ///< If Channel is not NULL, its pids are set by a call to SetPids().
-    ///< Otherwise pids can be added to the receiver by separate calls to the AddPid[s]
-    ///< functions.
-    ///< The total number of PIDs added to a receiver must not exceed MAXRECEIVEPIDS.
-    ///< Priority may be any value in the range MINPRIORITY...MAXPRIORITY. Negative values indicate
-    ///< that this cReceiver may be detached at any time in favor of a timer recording
-    ///< or live viewing (without blocking the cDevice it is attached to).
+    static cWebReceiver *current;
+
+    int getCurrentAudioPID();
+    void channelSwitch();
+    void changeAudioTrack();
 
 protected:
     void Activate(bool On);
@@ -37,10 +36,19 @@ protected:
     ///< it will be able to buffer the data if necessary.
 
 public:
-    static void createReceiver();
-    static void deleteReceiver();
+    cWebReceiver();
+    ///< Creates a new receiver for the given Channel with the given Priority.
+    ///< If Channel is not NULL, its pids are set by a call to SetPids().
+    ///< Otherwise pids can be added to the receiver by separate calls to the AddPid[s]
+    ///< functions.
+    ///< The total number of PIDs added to a receiver must not exceed MAXRECEIVEPIDS.
+    ///< Priority may be any value in the range MINPRIORITY...MAXPRIORITY. Negative values indicate
+    ///< that this cReceiver may be detached at any time in favor of a timer recording
+    ///< or live viewing (without blocking the cDevice it is attached to).
 
     ~cWebReceiver() override;
+
+    static cWebReceiver* getCurrentWebReceiver() { return current; };
 };
 
 #endif // WEBOUT_WEBRECEIVER_H

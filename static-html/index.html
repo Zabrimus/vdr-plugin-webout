@@ -45,27 +45,21 @@
 
             switch(type) {
                 case 1: // show PNG Image
-                    console.log("PNG Image received");
                     drawImage("osdCanvas", event.data);
                     break;
 
                 case 2: // set Size
-                    console.log("Size received");
-                    // setCanvasVideoSize("osdCanvas", event.data);
-                    // setCanvasVideoSize("video", event.data);
-                    // setCanvasVideoSize("container", event.data);
+                    // TODO: Unused: Remove this message type
                     break;
 
                 case 3: // Player reset
-                    console.log("Reset received");
                     if (window.videoPlayer) {
-                        // window.videoPlayer.reset();
                         window.videoPlayer.dispose();
                         initPlayer();
                     }
+                    break;
 
                 case 4: // Clear OSD
-                    console.log("Clear OSD received");
                     clear("osdCanvas");
                     break;
             }
@@ -96,7 +90,7 @@
                 let ctrl = evt.ctrlKey ? "1" : "0";
                 let meta = evt.metaKey ? "1" : "0";
 
-                console.log("Key Code: " + evt.code);
+                // console.log("Key Code: " + evt.code);
 
                 let buffer = new TextEncoder().encode("3:" + shift + alt + ctrl + meta + ":" + evt.code).buffer;
                 osdSocket.send(buffer);
@@ -129,29 +123,17 @@
                 // scale image width and coordinates
                 let canvasWidth = parseInt(canvasElement.getAttribute("width"),10);
                 let canvasHeight = parseInt(canvasElement.getAttribute("height"), 10);
-                let scale = Math.max(canvasWidth / osdWidth, canvasHeight / osdHeight);
 
-                ctx.clearRect(x*scale, y*scale, w * scale, h * scale);
-                ctx.drawImage(img, x*scale, y*scale, w * scale, h * scale);
+                let scalex = canvasWidth / 1920.0;
+                let scaley = canvasHeight / 1080.0;
+
+                ctx.clearRect(x*scalex, y*scaley, w * scalex, h * scaley);
+                ctx.drawImage(img, x*scalex, y*scaley, w * scalex, h * scaley);
             }
         }
     </script>
 
-    <!-- set Canvas Size -->
-    <script type="text/javascript" charset="utf-8">
-        function setCanvasVideoSize(canvas, buffer) {
-            let dv = new DataView(buffer, 0)
-
-            let w = dv.getInt32(4, true);
-            let h = dv.getInt32(8, true);
-
-            let c = document.getElementById(canvas);
-            c.style.width  = w + 'px';
-            c.style.height = h + 'px';
-        }
-    </script>
-
-    <!-- set Canvas Size -->
+    <!-- clear Canvas -->
     <script type="text/javascript" charset="utf-8">
         function clear(canvas) {
             let canvasElement = document.getElementById(canvas);
@@ -163,9 +145,6 @@
 
 <body>
     <div id="container">
-        <!--
-        <video-js id="video" preload="auto" style="background-color: yellow"></video-js>
-        -->
         <canvas id="osdCanvas"></canvas>
     </div>
 
@@ -230,7 +209,7 @@
         resizeCanvas();
 
         // window resize
-        window.addEventListener('resize', resizeCanvas());
+        window.onresize = resizeCanvas;
     </script>
 </body>
 </html>
