@@ -4,16 +4,18 @@
 #include <vdr/device.h>
 #include "ffmpeghls.h"
 #include "webosd.h"
+#include "webstatus.h"
 
 class cWebDevice : public cDevice {
 private:
     cFFmpegHLS *ffmpegHls;
+    cWebStatus *webStatus;
 
 public:
     cWebDevice();
     ~cWebDevice() override;
 
-    cString DeviceName() const override { return "Hallo"; };
+    cString DeviceName() const override { return "WebOutDevice"; };
 
     bool HasDecoder() const override;
 
@@ -35,6 +37,9 @@ public:
     void Activate(bool On);
 
     void GetOsdSize(int &Width, int &Height, double &Aspect) override;
+
+    void channelSwitch();
+    void changeAudioTrack();
 
 protected:
     void MakePrimaryDevice(bool On) override;

@@ -1,5 +1,6 @@
 #include "global.h"
 #include "webdevice.h"
+#include "server.h"
 
 const int maxTs = 256;
 uint8_t tsBuffer[maxTs * 188];
@@ -15,6 +16,10 @@ cWebDevice::cWebDevice() {
 cWebDevice::~cWebDevice() {
     debug_plugin(" ");
     webDevice = nullptr;
+
+    if (webStatus != nullptr) {
+        delete webStatus;
+    }
 
     if (ffmpegHls != nullptr) {
         delete ffmpegHls;
@@ -126,17 +131,23 @@ void cWebDevice::Activate(bool On) {
         debug_plugin("Send DETA: %d -> %s", replyCode, *result);
 
         SetPrimaryDevice(DeviceNumber()+1);
+
+        webStatus = new cWebStatus();
     } else {
         if (ffmpegHls != nullptr) {
             delete ffmpegHls;
             ffmpegHls = nullptr;
         }
 
+        if (webStatus != nullptr) {
+            DELETENULL(webStatus);
+        }
+
         // attach possible existing softhd* device
         result = sendSVDRPCommand("softhd", true, "ATTA", "", replyCode);
         debug_plugin("Send ATTA: %d -> %s", replyCode, *result);
 
-        // TODO: DeviceNumber vom ursprünglichen PrimaryDevice sichern und hier nutzen
+        // TODO: Device Id des ursprünglichen Devices setzen
         SetPrimaryDevice(1);
     }
 }
@@ -146,4 +157,29 @@ void cWebDevice::GetOsdSize(int &Width, int &Height, double &Aspect) {
     Width = 1920;
     Height = 1080;
     Aspect = 16.0/9.0;
+}
+
+void cWebDevice::channelSwitch() {
+    printf("ChannelSwitch\n");
+
+    if (ffmpegHls != nullptr) {
+        delete ffmpegHls;
+    }
+
+    // TODO: Copy video
+    ffmpegHls = new cFFmpegHLS(false);
+
+    webOsdServer->sendPlayerReset();
+}
+
+void cWebDevice::changeAudioTrack() {
+    // printf("ChangeAudioTrack from %d to %d\n", currentAudioPid, getCurrentAudioPID());
+
+    // TODO: currently disabled
+    return;
+
+    // DelPid(currentAudioPid);
+    // AddPid(getCurrentAudioPID());
+
+    // TODO: Der Videoplayer müsste wahrscheinlich über den Wechsel benachrichtigt werden.
 }
