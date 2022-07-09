@@ -11,6 +11,7 @@ cWebDevice *webDevice;
 cWebDevice::cWebDevice() {
     debug_plugin(" ");
     webDevice = this;
+    lastPrimaryDevice = -1;
 }
 
 cWebDevice::~cWebDevice() {
@@ -103,34 +104,20 @@ bool cWebDevice::Poll(cPoller &Poller, int TimeoutMs) {
 }
 
 void cWebDevice::MakePrimaryDevice(bool On) {
-    debug_plugin("ON: %s", On ? "true" : "false");
-    cDevice::MakePrimaryDevice(On);
-
     if (On) {
         new cWebOsdProvider();
     }
 }
 
 void cWebDevice::Activate(bool On) {
-    int replyCode = 0;
-    cString result;
-
-    debug_plugin("ON: %s", On ? "true" : "false");
-    MakePrimaryDevice(On);
-
-    for (int i = 0; i < NumDevices(); ++i) {
-        debug_plugin("Device %d -> %s", i, *GetDevice(i)->DeviceName());
-    }
-
     if (On) {
+        lastPrimaryDevice = cDevice::PrimaryDevice()->DeviceNumber();
+
         // TODO: Copy Video bestimmen
         ffmpegHls = new cFFmpegHLS(false);
 
-        // detach possible existing softhd* device
-        result = sendSVDRPCommand("softhd", true, "DETA", "", replyCode);
-        debug_plugin("Send DETA: %d -> %s", replyCode, *result);
-
-        SetPrimaryDevice(DeviceNumber()+1);
+        // switch primary device to webdevice
+        Setup.PrimaryDVB = DeviceNumber() + 1;
 
         webStatus = new cWebStatus();
     } else {
@@ -143,17 +130,15 @@ void cWebDevice::Activate(bool On) {
             DELETENULL(webStatus);
         }
 
-        // attach possible existing softhd* device
-        result = sendSVDRPCommand("softhd", true, "ATTA", "", replyCode);
-        debug_plugin("Send ATTA: %d -> %s", replyCode, *result);
-
-        // TODO: Device Id des ursprünglichen Devices setzen
-        SetPrimaryDevice(1);
+        // switch primary device back to the former one
+        if (lastPrimaryDevice != -1) {
+            Setup.PrimaryDVB = lastPrimaryDevice + 1;
+            lastPrimaryDevice = -1;
+        }
     }
 }
 
 void cWebDevice::GetOsdSize(int &Width, int &Height, double &Aspect) {
-    // cDevice::GetOsdSize(Width, Height, Aspect);
     Width = 1920;
     Height = 1080;
     Aspect = 16.0/9.0;

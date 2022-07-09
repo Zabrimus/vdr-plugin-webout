@@ -125,14 +125,12 @@ struct AsyncStreamer {
 AsyncStreamer streamer("/home/rh/idea/vdr-plugin-webout/static-html");
 
 cWebOsdServer::cWebOsdServer(const char *Description, bool LowPriority) : cThread(Description, LowPriority) {
-    // osdProvider = new cWebOsdProvider(OSDPROVIDER_IDX);
     webOsdServer = this;
-    // webStatus = nullptr;
+    gws = nullptr;
 }
 
 cWebOsdServer::~cWebOsdServer() {
     webOsdServer = nullptr;
-    // delete webStatus;
 }
 
 void cWebOsdServer::Action() {
@@ -175,6 +173,7 @@ void cWebOsdServer::Action() {
                         printf("Drain\n");
                     },
                     .close = [this](auto */*ws*/, int /*code*/, std::string_view /*message*/) {
+                        gws = nullptr;
                         webDevice->Activate(false);
                     }
             }).get("/", [](auto *res, auto *req) {
@@ -221,6 +220,11 @@ void cWebOsdServer::Cancel(int WaitSeconds) {
 }
 
 int cWebOsdServer::sendPngImage(int x, int y, int w, int h, int bufferSize, uint8_t *buffer) {
+    // sanity check
+    if (gws == nullptr) {
+        return -1;
+    }
+
     uint8_t sendBuffer[7 * sizeof(uint32_t) + bufferSize];
 
     // get current OSD size
@@ -244,6 +248,11 @@ int cWebOsdServer::sendPngImage(int x, int y, int w, int h, int bufferSize, uint
 }
 
 int cWebOsdServer::sendSize() {
+    // sanity check
+    if (gws == nullptr) {
+        return -1;
+    }
+
     uint32_t sendBuffer[3];
 
     int width;
@@ -261,6 +270,11 @@ int cWebOsdServer::sendSize() {
 }
 
 int cWebOsdServer:: sendClearOsd() {
+    // sanity check
+    if (gws == nullptr) {
+        return -1;
+    }
+
     uint32_t sendBuffer[1];
 
     // clear OSD
@@ -269,6 +283,11 @@ int cWebOsdServer:: sendClearOsd() {
 }
 
 int cWebOsdServer::sendPlayerReset() {
+    // sanity check
+    if (gws == nullptr) {
+        return -1;
+    }
+
     uint32_t sendBuffer[1];
 
     // reset

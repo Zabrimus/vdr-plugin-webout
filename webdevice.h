@@ -8,6 +8,8 @@
 
 class cWebDevice : public cDevice {
 private:
+    int lastPrimaryDevice;
+
     cFFmpegHLS *ffmpegHls;
     cWebStatus *webStatus;
 
