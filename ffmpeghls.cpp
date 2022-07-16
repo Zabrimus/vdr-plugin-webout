@@ -7,7 +7,8 @@ const char* STREAM_DIR = "/tmp/vdr-live-tv-stream";
 
 const std::string VIDEO_ENCODE_H264 = "-crf 23 -c:v libx264 -tune zerolatency -vf format=yuv420p -preset ultrafast -qp 0 ";
 const std::string VIDEO_ENCODE_COPY = "-c:v copy";
-const std::string AUDIO_ENCODE_AAC = "-c:a aac -b:a 192k";
+//const std::string AUDIO_ENCODE_AAC = "-c:a aac -b:a 384k -channel_layout 5.1";
+const std::string AUDIO_ENCODE_AAC = "-c:a aac -vbr 5 -channel_layout 5.1";
 const std::string AUDIO_ENCODE_COPY = "-c:a copy";
 
 cFFmpegHLS::cFFmpegHLS(bool copyVideo) {
@@ -24,8 +25,9 @@ cFFmpegHLS::cFFmpegHLS(bool copyVideo) {
     */
 
 
-    std::string ffmpeg = std::string("ffmpeg -i - -v panic -hide_banner -ignore_unknown -fflags flush_packets -max_delay 5 -flags -global_header -hls_time 5 -hls_list_size 3 ") +
-    // std::string ffmpeg = std::string("ffmpeg -i - -ignore_unknown -fflags flush_packets -max_delay 5 -flags -global_header -hls_time 5 -hls_list_size 3 ") +
+    // std::string ffmpeg = std::string("ffmpeg -i - -v panic -hide_banner -ignore_unknown -fflags flush_packets -max_delay 5 -flags -global_header -hls_time 5 -hls_list_size 3 ") +
+    // std::string ffmpeg = std::string("ffmpeg -re -i - -ignore_unknown -fflags flush_packets -max_delay 5 -flags -global_header -hls_time 5 -hls_list_size 3 ") +
+    std::string ffmpeg = std::string("ffmpeg -i - -ignore_unknown -fflags flush_packets -max_delay 5 -flags -global_header -hls_time 5 -hls_list_size 3 ") +
             std::string(" -hls_delete_threshold 3 -hls_segment_filename 'vdr-live-tv-%03d.ts' -hls_segment_type mpegts ") +
             std::string(" -hls_flags delete_segments ") +
             std::string(" -map 0:v -map 0:a?") +

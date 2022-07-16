@@ -72,22 +72,24 @@ int cWebDevice::PlayTs(const uchar *Data, int Length, bool VideoOnly) {
     // debug_plugin("Length: %d", Length);
 
     if (Length > 188) {
-        fprintf(stderr, "===> LÄNGE: %d\n", Length);
+        // fprintf(stderr, "===> LÄNGE: %d\n", Length);
     }
 
     if (ffmpegHls != nullptr) {
-        if (tsBufferIdx < maxTs - 1) {
-            memcpy(tsBuffer + tsBufferIdx*188, Data, Length);
-            tsBufferIdx++;
+        if (Length == 188) {
+            if (tsBufferIdx < maxTs - 1) {
+                memcpy(tsBuffer + tsBufferIdx * 188, Data, Length);
+                tsBufferIdx++;
+            } else {
+                memcpy(tsBuffer + tsBufferIdx * 188, Data, Length);
+                ffmpegHls->Receive((const uint8_t *) tsBuffer, maxTs * 188);
+                tsBufferIdx = 0;
+            }
         } else {
-            // printf("Receive: %d -> %d\n", tsBufferIdx, tsBufferIdx * 188);
-            memcpy(tsBuffer + tsBufferIdx*188, Data, Length);
-            ffmpegHls->Receive((const uint8_t*)tsBuffer, maxTs * 188);
+            // recording
+            ffmpegHls->Receive((const uint8_t *) Data, Length);
             tsBufferIdx = 0;
         }
-
-        // printf("==> Receive: %d\n", Length);
-        // ffmpegHls->Receive(Data, Length);
     }
 
     return Length;
@@ -99,7 +101,7 @@ bool cWebDevice::Flush(int TimeoutMs) {
 }
 
 bool cWebDevice::Poll(cPoller &Poller, int TimeoutMs) {
-    debug_plugin(" ");
+    // debug_plugin(" ");
     return true;
 }
 
@@ -167,4 +169,17 @@ void cWebDevice::changeAudioTrack() {
     // AddPid(getCurrentAudioPID());
 
     // TODO: Der Videoplayer müsste wahrscheinlich über den Wechsel benachrichtigt werden.
+}
+
+void cWebDevice::Replaying(bool On) {
+    printf("Replaying: %s\n", On ? "An" : "Aus");
+
+    if (ffmpegHls != nullptr) {
+        delete ffmpegHls;
+    }
+
+    // TODO: Copy video
+    ffmpegHls = new cFFmpegHLS(false);
+
+    webOsdServer->sendPlayerReset();
 }

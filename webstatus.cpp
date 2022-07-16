@@ -19,3 +19,8 @@ void cWebStatus::SetAudioTrack(int Index, const char *const *Tracks) {
 
     webDevice->changeAudioTrack();
 }
+
+void cWebStatus::Replaying(const cControl *Control, const char *Name, const char *FileName, bool On) {
+    printf("Replaying: %s -> %s -> %s\n", Name, FileName, On ? " An " : " Aus");
+    webDevice->Replaying(On);
+}

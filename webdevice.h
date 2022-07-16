@@ -42,6 +42,7 @@ public:
 
     void channelSwitch();
     void changeAudioTrack();
+    void Replaying(bool On);
 
 protected:
     void MakePrimaryDevice(bool On) override;
