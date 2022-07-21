@@ -75,6 +75,8 @@ int cWebDevice::PlayTs(const uchar *Data, int Length, bool VideoOnly) {
         // fprintf(stderr, "===> LÄNGE: %d\n", Length);
     }
 
+    webEncoder->PlayTS(Data, Length);
+
     if (ffmpegHls != nullptr) {
         if (Length == 188) {
             if (tsBufferIdx < maxTs - 1) {
@@ -122,6 +124,7 @@ void cWebDevice::Activate(bool On) {
         Setup.PrimaryDVB = DeviceNumber() + 1;
 
         webStatus = new cWebStatus();
+        webEncoder = new cWebEncoder();
     } else {
         if (ffmpegHls != nullptr) {
             delete ffmpegHls;
@@ -131,6 +134,8 @@ void cWebDevice::Activate(bool On) {
         if (webStatus != nullptr) {
             DELETENULL(webStatus);
         }
+
+        DELETENULL(webEncoder);
 
         // switch primary device back to the former one
         if (lastPrimaryDevice != -1) {

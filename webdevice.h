@@ -5,6 +5,7 @@
 #include "ffmpeghls.h"
 #include "webosd.h"
 #include "webstatus.h"
+#include "webencoder.h"
 
 class cWebDevice : public cDevice {
 private:
@@ -12,6 +13,7 @@ private:
 
     cFFmpegHLS *ffmpegHls;
     cWebStatus *webStatus;
+    cWebEncoder *webEncoder;
 
 public:
     cWebDevice();

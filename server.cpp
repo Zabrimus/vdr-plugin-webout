@@ -153,6 +153,7 @@ void cWebOsdServer::Action() {
                         gws = ws;
                         sendSize();
                         webDevice->Activate(true);
+
                     },
                     .message = [this](auto *ws, std::string_view message, uWS::OpCode opCode) {
                         std::cout << "Got message: " << message << ":" << message.length() << std::endl;

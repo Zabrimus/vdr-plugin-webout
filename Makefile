@@ -25,6 +25,10 @@ U_WEBSOCKETS_INCLUDE=thirdparty/uWebSockets-$(U_WEBSOCKETS_VERSION)/src
 U_TINY_PROCESS_LIBRARY_INCLUDE=thirdparty/tiny-process-library
 U_TINY_PROCESS_LIBRARY_OBJ=thirdparty/tiny-process-library/process_unix.o thirdparty/tiny-process-library/process.o
 
+# ffmpeg
+FFMPEG_CFLAGS += $(shell pkg-config --cflags libavutil libavcodec libavdevice libavformat libswresample x264 x265 fdk-aac)
+FFMPEG_LDFLAGS += $(shell pkg-config --libs libavutil libavcodec libavdevice libavformat libswresample x264 x265 fdk-aac)
+
 ### The directory environment:
 
 # Use package data if installed...otherwise assume we're under the VDR source directory:
@@ -40,6 +44,10 @@ TMPDIR ?= /tmp
 
 export CFLAGS   = $(call PKGCFG,cflags)
 export CXXFLAGS = $(call PKGCFG,cxxflags) -std=c++17 -fno-strict-aliasing -O3 -DFPNG_NO_SSE=1  #-DSSE=1 -DFPNG_NO_SSE=0 -msse4.1 -mpclmul
+
+CFLAGS += ${FFMPEG_CFLAGS}
+CXXFLAGS += ${FFMPEG_CFLAGS}
+# LDFLAGS += ${FFMPEG_LDFLAGS}
 
 ### The version number of VDR's plugin API:
 
@@ -67,7 +75,7 @@ DEFINES += -DPLUGIN_NAME_I18N='"$(PLUGIN)"'
 
 ### The object files (add further files here):
 
-OBJS = $(PLUGIN).o fpng.o server.o webstatus.o webosd.o webremote.o webdevice.o ffmpeghls.o global.o $(U_TINY_PROCESS_LIBRARY_OBJ)
+OBJS = $(PLUGIN).o fpng.o server.o webstatus.o webosd.o webremote.o webdevice.o ffmpeghls.o webencoder.o global.o ring_buffer.o $(U_TINY_PROCESS_LIBRARY_OBJ)
 
 ### The main target:
 
@@ -124,7 +132,7 @@ uSockets:
 
 $(SOFILE): $(OBJS)
 	@echo LD $@
-	$(Q)$(CXX) $(CXXFLAGS) $(LDFLAGS) -shared $(OBJS) $(U_SOCKETS_LIB) -o $@
+	$(Q)$(CXX) $(CXXFLAGS) $(LDFLAGS) -shared $(OBJS) $(U_SOCKETS_LIB) ${FFMPEG_LDFLAGS} -o $@
 
 install-lib: $(SOFILE)
 	install -D $^ $(DESTDIR)$(LIBDIR)/$^.$(APIVERSION)

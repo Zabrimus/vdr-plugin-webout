@@ -25,9 +25,9 @@ cFFmpegHLS::cFFmpegHLS(bool copyVideo) {
     */
 
 
-    // std::string ffmpeg = std::string("ffmpeg -i - -v panic -hide_banner -ignore_unknown -fflags flush_packets -max_delay 5 -flags -global_header -hls_time 5 -hls_list_size 3 ") +
+    std::string ffmpeg = std::string("ffmpeg -i - -v panic -hide_banner -ignore_unknown -fflags flush_packets -max_delay 5 -flags -global_header -hls_time 5 -hls_list_size 3 ") +
     // std::string ffmpeg = std::string("ffmpeg -re -i - -ignore_unknown -fflags flush_packets -max_delay 5 -flags -global_header -hls_time 5 -hls_list_size 3 ") +
-    std::string ffmpeg = std::string("ffmpeg -i - -ignore_unknown -fflags flush_packets -max_delay 5 -flags -global_header -hls_time 5 -hls_list_size 3 ") +
+    // std::string ffmpeg = std::string("ffmpeg -i - -ignore_unknown -fflags flush_packets -max_delay 5 -flags -global_header -hls_time 5 -hls_list_size 3 ") +
             std::string(" -hls_delete_threshold 3 -hls_segment_filename 'vdr-live-tv-%03d.ts' -hls_segment_type mpegts ") +
             std::string(" -hls_flags delete_segments ") +
             std::string(" -map 0:v -map 0:a?") +
