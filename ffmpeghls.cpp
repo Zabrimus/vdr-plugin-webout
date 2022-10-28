@@ -55,15 +55,6 @@ cFFmpegHLS::~cFFmpegHLS() {
         ffmpegProcess = nullptr;
     }
 
-    /*
-    std::error_code ec;
-    std::filesystem::remove_all(STREAM_DIR, ec);
-
-    if (ec.value() != 0) {
-        printf("Error %s\n", ec.message().c_str());
-    }
-    */
-
     system((std::string("rm -rf ") + STREAM_DIR + "/*.ts").c_str());
     system((std::string("rm -rf ") + STREAM_DIR + "/*.m3u8").c_str());
 }
@@ -77,7 +68,7 @@ void cFFmpegHLS::Receive(const uchar *Data, int Length) {
 
     if (ffmpegProcess->try_get_exit_status(exitStatus)) {
         // process stopped/finished/crashed
-        printf("2=> ffmpeg error_code: %d\n", exitStatus);
+        printf("ffmpeg error_code: %d\n", exitStatus);
         return;
     }
 

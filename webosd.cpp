@@ -24,13 +24,10 @@ cWebOsd::cWebOsd(cWebOsdProvider &Provider, int Left, int Top, uint Level) : cOs
 }
 
 cWebOsd::~cWebOsd() {
-    debug_plugin("delete WebOsd");
     webOsdServer->sendClearOsd();
 }
 
 void cWebOsd::Flush() {
-    debug_plugin("Flush Osd");
-
     if (!cOsd::Active())
         return;
 
@@ -42,8 +39,6 @@ void cWebOsd::Flush() {
         int vx, vy, vw, vh;
         int x, y;
         const uint8_t *pixel;
-
-        // png::image<png::rgba_pixel> *pngfile;
 
         std::vector<uint8_t> outbuffer;
         while (cPixmapMemory *pm = dynamic_cast<cPixmapMemory*>(RenderPixmaps())) {

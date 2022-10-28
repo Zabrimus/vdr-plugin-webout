@@ -1,1 +1,0 @@
-ffmpeg -i 00001.ts -map 0:v:0 -map i:0x1786 -c:v copy -c:a aac test.ts
