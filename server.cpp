@@ -222,11 +222,6 @@ void cWebOsdServer::Cancel(int WaitSeconds) {
 }
 
 int cWebOsdServer::sendPngImage(int x, int y, int w, int h, int bufferSize, uint8_t *buffer) {
-    // sanity check
-    if (gws == nullptr) {
-        return -1;
-    }
-
     uint8_t sendBuffer[7 * sizeof(uint32_t) + bufferSize];
 
     // get current OSD size
@@ -246,6 +241,11 @@ int cWebOsdServer::sendPngImage(int x, int y, int w, int h, int bufferSize, uint
     ((uint32_t *) sendBuffer)[6] = h;
     memcpy(sendBuffer + 7 * sizeof(uint32_t), reinterpret_cast<const void *>(buffer), bufferSize);
 
+    // sanity check
+    if (gws == nullptr) {
+        return -1;
+    }
+
     return gws->send(std::string_view((char *) &sendBuffer, 20 + bufferSize), uWS::OpCode::BINARY);
 }
 
@@ -261,15 +261,15 @@ int cWebOsdServer::scaleVideo(int top, int left, int w, int h) {
     ((uint32_t *) sendBuffer)[3] = w;
     ((uint32_t *) sendBuffer)[4] = h;
 
-    return gws->send(std::string_view((char *) &sendBuffer, count * sizeof(uint32_t)), uWS::OpCode::BINARY);
-}
-
-int cWebOsdServer::sendSize() {
     // sanity check
     if (gws == nullptr) {
         return -1;
     }
 
+    return gws->send(std::string_view((char *) &sendBuffer, count * sizeof(uint32_t)), uWS::OpCode::BINARY);
+}
+
+int cWebOsdServer::sendSize() {
     uint32_t sendBuffer[3];
 
     int width;
@@ -283,32 +283,39 @@ int cWebOsdServer::sendSize() {
     sendBuffer[1] = width;
     sendBuffer[2] = height;
 
+    // sanity check
+    if (gws == nullptr) {
+        return -1;
+    }
+
     return gws->send(std::string_view((char *) &sendBuffer, sizeof(sendBuffer)), uWS::OpCode::BINARY);
 }
 
 int cWebOsdServer:: sendClearOsd() {
-    // sanity check
-    if (gws == nullptr) {
-        return -1;
-    }
-
     uint32_t sendBuffer[1];
 
     // clear OSD
     sendBuffer[0] = MESSAGE_TYPE_CLEAR_OSD; // type CLEAR_OSD
-    return gws->send(std::string_view((char *) &sendBuffer, sizeof(sendBuffer)), uWS::OpCode::BINARY);
-}
 
-int cWebOsdServer::sendPlayerReset() {
     // sanity check
     if (gws == nullptr) {
         return -1;
     }
 
+    return gws->send(std::string_view((char *) &sendBuffer, sizeof(sendBuffer)), uWS::OpCode::BINARY);
+}
+
+int cWebOsdServer::sendPlayerReset() {
     uint32_t sendBuffer[1];
 
     // reset
     sendBuffer[0] = MESSAGE_TYPE_RESET; // type RESET
+
+    // sanity check
+    if (gws == nullptr) {
+        return -1;
+    }
+
     return gws->send(std::string_view((char *) &sendBuffer, sizeof(sendBuffer)), uWS::OpCode::BINARY);
 }
 
