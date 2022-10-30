@@ -12,10 +12,11 @@
 #include "fpng.h"
 
 // message types (VDR --> Browser)
-const uint32_t MESSAGE_TYPE_PNG       = 1;
-const uint32_t MESSAGE_TYPE_SIZE      = 2;
-const uint32_t MESSAGE_TYPE_RESET     = 3;
-const uint32_t MESSAGE_TYPE_CLEAR_OSD = 4;
+const uint32_t MESSAGE_TYPE_PNG         = 1;
+const uint32_t MESSAGE_TYPE_SIZE        = 2;
+const uint32_t MESSAGE_TYPE_RESET       = 3;
+const uint32_t MESSAGE_TYPE_CLEAR_OSD   = 4;
+const uint32_t MESSAGE_TYPE_SCALE_VIDEO = 5;
 
 cWebOsdServer *webOsdServer;
 
@@ -246,6 +247,21 @@ int cWebOsdServer::sendPngImage(int x, int y, int w, int h, int bufferSize, uint
     memcpy(sendBuffer + 7 * sizeof(uint32_t), reinterpret_cast<const void *>(buffer), bufferSize);
 
     return gws->send(std::string_view((char *) &sendBuffer, 20 + bufferSize), uWS::OpCode::BINARY);
+}
+
+int cWebOsdServer::scaleVideo(int top, int left, int w, int h) {
+    int count = 5;
+
+    uint8_t sendBuffer[count * sizeof(uint32_t)];
+
+    // fill buffer
+    ((uint32_t *) sendBuffer)[0] = MESSAGE_TYPE_SCALE_VIDEO;
+    ((uint32_t *) sendBuffer)[1] = top;
+    ((uint32_t *) sendBuffer)[2] = left;
+    ((uint32_t *) sendBuffer)[3] = w;
+    ((uint32_t *) sendBuffer)[4] = h;
+
+    return gws->send(std::string_view((char *) &sendBuffer, count * sizeof(uint32_t)), uWS::OpCode::BINARY);
 }
 
 int cWebOsdServer::sendSize() {

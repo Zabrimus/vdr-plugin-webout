@@ -40,6 +40,9 @@ public:
 
     void GetOsdSize(int &Width, int &Height, double &Aspect) override;
 
+    cRect CanScaleVideo(const cRect &Rect, int Alignment);
+    void ScaleVideo(const cRect &Rect) override;
+
     void channelSwitch();
     void changeAudioTrack();
     void Replaying(bool On);

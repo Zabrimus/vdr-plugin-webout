@@ -73,6 +73,7 @@ int cWebDevice::PlayTs(const uchar *Data, int Length, bool VideoOnly) {
 
     if (ffmpegHls != nullptr) {
         if (Length == 188) {
+            // buffer this single packet
             if (tsBufferIdx < maxTs - 1) {
                 memcpy(tsBuffer + tsBufferIdx * 188, Data, Length);
                 tsBufferIdx++;
@@ -82,7 +83,7 @@ int cWebDevice::PlayTs(const uchar *Data, int Length, bool VideoOnly) {
                 tsBufferIdx = 0;
             }
         } else {
-            // recording
+            // more than one packet (mostly playing a recording)
             ffmpegHls->Receive((const uint8_t *) Data, Length);
             tsBufferIdx = 0;
         }
@@ -112,7 +113,7 @@ void cWebDevice::Activate(bool On) {
         lastPrimaryDevice = cDevice::PrimaryDevice()->DeviceNumber();
 
         // TODO: Copy Video bestimmen
-        ffmpegHls = new cFFmpegHLS(false);
+        ffmpegHls = new cFFmpegHLS(false, false);
 
         // switch primary device to webdevice
         Setup.PrimaryDVB = DeviceNumber() + 1;
@@ -142,6 +143,22 @@ void cWebDevice::GetOsdSize(int &Width, int &Height, double &Aspect) {
     Aspect = 16.0/9.0;
 }
 
+cRect cWebDevice::CanScaleVideo(const cRect &Rect, int Alignment) {
+    printf("CanScaleVideo...");
+    return Rect;
+}
+
+void cWebDevice::ScaleVideo(const cRect &Rect) {
+   printf("ScaleVideo to Top=%d, Left=%d, Width=%d, Height=%d\n", Rect.Top(), Rect.Left(), Rect.Width(), Rect.Height());
+
+   int left = Rect.Left();
+   int top = Rect.Top();
+   int w = Rect.Width();
+   int h = Rect.Height();
+
+   webOsdServer->scaleVideo(top, left, w, h);
+}
+
 void cWebDevice::channelSwitch() {
     printf("ChannelSwitch\n");
 
@@ -150,7 +167,7 @@ void cWebDevice::channelSwitch() {
     }
 
     // TODO: Copy video
-    ffmpegHls = new cFFmpegHLS(false);
+    ffmpegHls = new cFFmpegHLS(false, false);
 
     webOsdServer->sendPlayerReset();
 }
@@ -175,7 +192,7 @@ void cWebDevice::Replaying(bool On) {
     }
 
     // TODO: Copy video
-    ffmpegHls = new cFFmpegHLS(false);
+    ffmpegHls = new cFFmpegHLS(false, true);
 
     webOsdServer->sendPlayerReset();
 }

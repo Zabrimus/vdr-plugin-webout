@@ -56,6 +56,8 @@ public:
     int sendPlayerReset();
     int sendClearOsd();
 
+    int scaleVideo(int top, int left, int w, int h);
+
     void receiveKeyEvent(std::string_view event);
 };
 

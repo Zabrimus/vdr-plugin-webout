@@ -12,7 +12,7 @@ private:
     TinyProcessLib::Process *ffmpegProcess;
 
 public:
-    cFFmpegHLS(bool copyVideo);
+    cFFmpegHLS(bool copyVideo, bool isReplay);
     ~cFFmpegHLS();
 
     void Receive(const uchar *Data, int Length);

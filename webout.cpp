@@ -76,6 +76,8 @@ bool cPluginWebout::Initialize()
 
   fpng::fpng_init();
 
+  tr("dummy");
+
   return true;
 }
 

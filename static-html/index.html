@@ -25,11 +25,104 @@
         #container {
             position: relative;
         }
+
+        #video-wrapper {
+            height: 100%;
+            width: 100%;
+            padding-top: 0px;
+            padding-left: 0px;
+        }
     </style>
 
-
-    <!-- Websocket Connection -->
     <script type="text/javascript" charset="utf-8">
+        /* key events send to VDR */
+        window.addEventListener(
+            "keydown",
+            (evt) => {
+                let shift = evt.shiftKey ? "1" : "0";
+                let alt = evt.altKey ? "1" : "0";
+                let ctrl = evt.ctrlKey ? "1" : "0";
+                let meta = evt.metaKey ? "1" : "0";
+
+                // console.log("Key Code: " + evt.code);
+
+                let buffer = new TextEncoder().encode("3:" + shift + alt + ctrl + meta + ":" + evt.code).buffer;
+                osdSocket.send(buffer);
+
+                evt.preventDefault();
+                evt.stopPropagation();
+            }
+        )
+
+        /* draw png image on canvas */
+        function drawImage(canvas, buffer) {
+            let dv = new DataView(buffer, 0)
+
+            let osdWidth = dv.getInt32(4, true);
+            let osdHeight = dv.getInt32(8, true);
+            let x = dv.getInt32(12, true);
+            let y = dv.getInt32(16, true);
+            let w = dv.getInt32(20, true);
+            let h = dv.getInt32(24, true);
+
+            let png = new Blob([buffer.slice(28)], {type: "image/png"});
+            let img = new Image();
+            img.src = URL.createObjectURL(png);
+            let canvasElement = document.getElementById(canvas);
+            let ctx = canvasElement.getContext("2d");
+
+            img.onload = function() {
+                // scale image width and coordinates
+                let canvasWidth = parseInt(canvasElement.getAttribute("width"),10);
+                let canvasHeight = parseInt(canvasElement.getAttribute("height"), 10);
+
+                let scalex = canvasWidth / 1920.0;
+                let scaley = canvasHeight / 1080.0;
+
+                ctx.clearRect(x*scalex, y*scaley, w * scalex, h * scaley);
+                ctx.drawImage(img, x*scalex, y*scaley, w * scalex, h * scaley);
+            }
+        }
+
+        /* clear Canvas */
+        function clear(canvas) {
+            let canvasElement = document.getElementById(canvas);
+            let ctx = canvasElement.getContext("2d");
+            ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+        }
+
+        /* scale video */
+        function scaleVideo(video, buffer) {
+            let dv = new DataView(buffer, 0)
+
+            let top = dv.getInt32(4, true);
+            let left = dv.getInt32(8, true);
+            let w = dv.getInt32(12, true);
+            let h = dv.getInt32(16, true);
+
+            if (top === 0 && left === 0 && w === 0 && h === 0) {
+                // fullscreen
+                let videoWrapper = document.getElementById(video);
+                videoWrapper.style["padding-top"] = "0";
+                videoWrapper.style["padding-left"] = "0";
+                videoWrapper.style["width"] = "100%";
+                videoWrapper.style["height"] = "100%";
+            } else {
+                // scale image width and coordinates
+                let container = document.getElementById("container");
+
+                let scalex = container.clientWidth / 1920.0;
+                let scaley = container.clientHeight / 1080.0;
+
+                let videoWrapper = document.getElementById(video);
+                videoWrapper.style["padding-top"] = (scaley * top) + "px";
+                videoWrapper.style["padding-left"] = (scalex * left) + "px";
+                videoWrapper.style["width"] = (scalex * w) + "px";
+                videoWrapper.style["height"] = (scaley * h) + "px";
+            }
+        }
+
+        /* Websocket Connection */
         let osdSocket = new WebSocket("ws://localhost:3000/command");
         osdSocket.binaryType = "arraybuffer";
 
@@ -62,6 +155,10 @@
                 case 4: // Clear OSD
                     clear("osdCanvas");
                     break;
+
+                case 5: // scale video
+                    scaleVideo("video-wrapper", event.data);
+                    break;
             }
         };
 
@@ -79,72 +176,12 @@
             console.log(`[error] ${error.message}`);
         };
     </script>
-
-    <!-- key events send to VDR -->
-    <script type="text/javascript" charset="utf-8">
-        window.addEventListener(
-            "keydown",
-            (evt) => {
-                let shift = evt.shiftKey ? "1" : "0";
-                let alt = evt.altKey ? "1" : "0";
-                let ctrl = evt.ctrlKey ? "1" : "0";
-                let meta = evt.metaKey ? "1" : "0";
-
-                // console.log("Key Code: " + evt.code);
-
-                let buffer = new TextEncoder().encode("3:" + shift + alt + ctrl + meta + ":" + evt.code).buffer;
-                osdSocket.send(buffer);
-
-                evt.preventDefault();
-                evt.stopPropagation();
-            }
-        )
-    </script>
-
-    <!-- draw png image on canvas -->
-    <script type="text/javascript" charset="utf-8">
-        function drawImage(canvas, buffer) {
-            let dv = new DataView(buffer, 0)
-
-            let osdWidth = dv.getInt32(4, true);
-            let osdHeight = dv.getInt32(8, true);
-            let x = dv.getInt32(12, true);
-            let y = dv.getInt32(16, true);
-            let w = dv.getInt32(20, true);
-            let h = dv.getInt32(24, true);
-
-            let png = new Blob([buffer.slice(28)], {type: "image/png"});
-            let img = new Image();
-            img.src = URL.createObjectURL(png);
-            let canvasElement = document.getElementById(canvas);
-            let ctx = canvasElement.getContext("2d");
-
-            img.onload = function() {
-                // scale image width and coordinates
-                let canvasWidth = parseInt(canvasElement.getAttribute("width"),10);
-                let canvasHeight = parseInt(canvasElement.getAttribute("height"), 10);
-
-                let scalex = canvasWidth / 1920.0;
-                let scaley = canvasHeight / 1080.0;
-
-                ctx.clearRect(x*scalex, y*scaley, w * scalex, h * scaley);
-                ctx.drawImage(img, x*scalex, y*scaley, w * scalex, h * scaley);
-            }
-        }
-    </script>
-
-    <!-- clear Canvas -->
-    <script type="text/javascript" charset="utf-8">
-        function clear(canvas) {
-            let canvasElement = document.getElementById(canvas);
-            let ctx = canvasElement.getContext("2d");
-            ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-        }
-    </script>
 </head>
 
 <body>
     <div id="container">
+        <div id="video-wrapper">
+        </div>
         <canvas id="osdCanvas"></canvas>
     </div>
 
@@ -152,7 +189,7 @@
     <script src="/video.js"></script>
     <script>
         function initPlayer() {
-            const container = document.getElementById("container");
+            const container = document.getElementById("video-wrapper");
             const videoElement = document.createElement("video-js");
             videoElement.setAttribute('id', 'video');
             videoElement.setAttribute('preload', 'auto');
