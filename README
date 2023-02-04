@@ -1,10 +1,8 @@
 This is a "plugin" for the Video Disk Recorder (VDR).
 
-Written by:                  Your Name <email@host.dom>
-
-Project's homepage:          URL
-
-Latest version available at: URL
+Written by:                  Zabrimus
+Project's homepage:          https://github.com/Zabrimus/vdr-plugin-webout
+Latest version available at: https://github.com/Zabrimus/vdr-plugin-webout
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -13,3 +11,7 @@ the Free Software Foundation; either version 2 of the License, or
 See the file COPYING for more information.
 
 Description:
+
+Proof of concept
+Use OSD and video in the browser.
+Start VDR with osdweb plugin and use address http://<ip>:3000 in the browser to see both the OSD and the video.
